@@ -105,7 +105,6 @@ export async function onRequest(context) {
   const path   = '/' + (params.path || []).join('/')
   const method = request.method
   const KEY    = env.KLAVIYO_KEY
-  const KV     = env.BUFFER_POSTS
 
   const json = (data, status = 200) => new Response(JSON.stringify(data), {
     status, headers: {
@@ -132,40 +131,6 @@ export async function onRequest(context) {
     }
     if (path === '/klaviyo/lists') {
       return json(await kGet('/lists/', KEY))
-    }
-
-    // ── Buffer webhook (KV-backed) ─────────────────────────────────────────────
-    if (path === '/webhook/buffer') {
-      if (method === 'GET') {
-        const stored = KV ? (await KV.get('posts')) : null
-        return json({ posts: stored ? JSON.parse(stored) : [] })
-      }
-      if (method === 'POST') {
-        const body     = await request.json()
-        const incoming = Array.isArray(body) ? body : [body]
-        const posts    = incoming.map(p => ({
-          id:         p.id || `mk_${Date.now()}_${Math.random()}`,
-          text:       p.text || p.content || p.message || '',
-          due_at:     p.due_at || p.scheduled_at || p.due || null,
-          service:    p.profile_service || p.service || p.network || 'buffer',
-          profile:    p.profile_name || p.profile || '',
-          status:     p.status || 'scheduled',
-          receivedAt: new Date().toISOString(),
-        }))
-        if (KV) {
-          const existing = JSON.parse((await KV.get('posts')) || '[]')
-          const map      = Object.fromEntries(existing.map(p => [p.id, p]))
-          posts.forEach(p => { map[p.id] = p })
-          const merged   = Object.values(map).sort((a, b) => (a.due_at || 0) - (b.due_at || 0))
-          await KV.put('posts', JSON.stringify(merged))
-          return json({ ok: true, received: posts.length, total: merged.length })
-        }
-        return json({ ok: true, received: posts.length, note: 'KV not bound — posts not persisted' })
-      }
-      if (method === 'DELETE') {
-        if (KV) await KV.put('posts', '[]')
-        return json({ ok: true })
-      }
     }
 
     return json({ error: 'Not found' }, 404)

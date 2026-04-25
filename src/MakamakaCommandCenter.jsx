@@ -40,13 +40,13 @@ import {
 
 const brand = {
   name: "Makamaka Live Growth Command Center",
-  tagline: "Klaviyo + Shopify + Buffer + SMS + QR + Influencer Growth Hub",
+  tagline: "Klaviyo + Shopify + SMS + QR + Influencer Growth Hub",
 };
 
 const connectionStatus = [
   { name: "Klaviyo", status: "Ready to connect", detail: "Email/SMS flows, lists, segments, revenue attribution" },
   { name: "Shopify", status: "Ready to connect", detail: "Orders, customers, abandoned checkout, products" },
-  { name: "Buffer", status: "Ready to connect", detail: "Scheduled posts, social cadence, channel activity" },
+  { name: "Buffer", status: "Manual", detail: "Posts managed directly in the Buffer app — no integration needed" },
   { name: "GA4", status: "Optional", detail: "Traffic, conversion paths, landing pages" },
 ];
 
@@ -272,9 +272,6 @@ export default function MakamakaCommandCenter() {
     return { ...kpi, ...(overrides[kpi.label] || {}) };
   });
 
-  // Buffer posts from Make.com webhook
-  const liveBufferPosts = data?.bufferPosts || [];
-
   // Live Klaviyo flows
   const liveFlows  = data?.flows?.data || [];
   const liveKlaviyoCampaigns = data?.campaigns?.data || [];
@@ -331,7 +328,7 @@ export default function MakamakaCommandCenter() {
           </TabsList>
 
           <TabsContent value="live" className="mt-6">
-            <SectionTitle icon={BarChart3} title="Live Revenue Dashboard" subtitle="Designed to connect to Shopify, Klaviyo, Buffer, and QR lead sources." />
+            <SectionTitle icon={BarChart3} title="Live Revenue Dashboard" subtitle="Designed to connect to Shopify, Klaviyo, and QR lead sources." />
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
               <Card className="rounded-2xl shadow-sm"><CardContent className="p-5"><h3 className="font-bold mb-4">7-Day Revenue + Channel Lift</h3><div className="h-72"><ResponsiveContainer width="100%" height="100%"><AreaChart data={revenueData}><CartesianGrid strokeDasharray="3 3" /><XAxis dataKey="day" /><YAxis /><Tooltip /><Area type="monotone" dataKey="revenue" fillOpacity={0.2} /><Area type="monotone" dataKey="sms" fillOpacity={0.2} /><Area type="monotone" dataKey="email" fillOpacity={0.2} /></AreaChart></ResponsiveContainer></div></CardContent></Card>
               <Card className="rounded-2xl shadow-sm"><CardContent className="p-5"><h3 className="font-bold mb-4">Revenue by Source</h3><div className="h-72"><ResponsiveContainer width="100%" height="100%"><BarChart data={sourceData}><CartesianGrid strokeDasharray="3 3" /><XAxis dataKey="source" tick={{ fontSize: 11 }} /><YAxis /><Tooltip /><Bar dataKey="revenue" /></BarChart></ResponsiveContainer></div></CardContent></Card>
@@ -344,9 +341,9 @@ export default function MakamakaCommandCenter() {
           </TabsContent>
 
           <TabsContent value="connect" className="mt-6">
-            <SectionTitle icon={RefreshCw} title="Live Integration Center" subtitle="Klaviyo and Buffer are connected and streaming live data." />
+            <SectionTitle icon={RefreshCw} title="Live Integration Center" subtitle="Klaviyo is live. Buffer posts managed manually in the Buffer app." />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">{connectionStatus.map((item) => {
-              const isLive = (item.name === 'Klaviyo' && data?.kpis) || (item.name === 'Buffer' && data?.bufferPending);
+              const isLive = item.name === 'Klaviyo' && data?.kpis;
               return <ApiCard key={item.name} item={{ ...item, status: isLive ? '✅ Connected' : item.status }} />;
             })}</div>
             <Card className="rounded-2xl shadow-sm"><CardContent className="p-5"><h3 className="font-bold mb-3">Implementation Notes</h3><div className="space-y-2 text-sm text-slate-700"><p><b>Phase 1:</b> Connect Shopify orders, Klaviyo flows, and SMS metrics.</p><p><b>Phase 2:</b> Add Buffer scheduled posts and social campaign status.</p><p><b>Phase 3:</b> Add QR codes with UTM tracking for retail stores, pop-ups, and influencer campaigns.</p><p><b>Phase 4:</b> Add campaign launch approvals so the owner can review before sending.</p></div></CardContent></Card>
@@ -393,68 +390,8 @@ export default function MakamakaCommandCenter() {
             <SectionTitle
               icon={CalendarDays}
               title="Content Calendar"
-              subtitle={liveBufferPosts.length ? `${liveBufferPosts.length} live Buffer posts via Make.com` : "Weekly cadence template · Connect Make.com to pull live Buffer queue"}
+              subtitle="Weekly cadence template — schedule posts manually in Buffer"
             />
-
-            {/* Make.com connection panel */}
-            <Card className="rounded-2xl shadow-sm border-amber-200 bg-amber-50 mb-6">
-              <CardContent className="p-5">
-                <div className="flex items-start gap-3">
-                  <Zap className="h-5 w-5 text-amber-600 mt-0.5 shrink-0" />
-                  <div className="flex-1">
-                    <h3 className="font-bold text-amber-900 mb-1">Connect Buffer via Make.com</h3>
-                    <p className="text-sm text-amber-800 mb-3">
-                      Buffer shut down public API access. Use Make.com to bridge your Buffer queue into this dashboard automatically.
-                    </p>
-                    <div className="bg-white rounded-xl border border-amber-200 p-3 mb-3">
-                      <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Make.com Scenario Steps</p>
-                      <ol className="text-sm text-slate-700 space-y-1 list-decimal list-inside">
-                        <li>Open Make.com → Create new scenario</li>
-                        <li>Add trigger: <strong>Buffer → Watch Updates</strong> (or Schedule every hour)</li>
-                        <li>Add module: <strong>Buffer → Get Pending Updates</strong></li>
-                        <li>Add module: <strong>HTTP → Make a Request</strong></li>
-                        <li>Set URL to your webhook (see below), Method: <strong>POST</strong></li>
-                        <li>Map Buffer fields: <code className="bg-slate-100 px-1 rounded">text</code>, <code className="bg-slate-100 px-1 rounded">due_at</code>, <code className="bg-slate-100 px-1 rounded">profile_service</code></li>
-                        <li>Run scenario — posts appear here instantly</li>
-                      </ol>
-                    </div>
-                    <div className="bg-slate-900 rounded-xl p-3">
-                      <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Webhook URL (expose with ngrok)</p>
-                      <code className="text-teal-400 text-sm break-all">POST http://localhost:3457/api/webhook/buffer</code>
-                      <p className="text-xs text-slate-500 mt-1">Run: <code className="text-amber-400">ngrok http 3457</code> — use the https URL Make.com gives you</p>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Live Buffer posts from Make.com webhook */}
-            {liveBufferPosts.length > 0 && (
-              <div className="mb-6">
-                <h3 className="font-bold text-slate-700 mb-3 text-sm uppercase tracking-wider">Live Buffer Queue</h3>
-                <Card className="rounded-2xl shadow-sm overflow-hidden">
-                  <CardContent className="p-0">
-                    <div className="divide-y">
-                      {liveBufferPosts.map(post => {
-                        const due = post.due_at
-                          ? new Date(post.due_at * 1000).toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
-                          : '—'
-                        return (
-                          <div key={post.id} className="grid grid-cols-1 md:grid-cols-4 gap-2 p-4 items-center">
-                            <div className="font-semibold text-sm text-slate-700">{due}</div>
-                            <div className="flex items-center gap-2">
-                              <span className="text-sm capitalize font-medium text-slate-600">{post.service}</span>
-                              {post.profile && <span className="text-xs text-slate-400">· {post.profile}</span>}
-                            </div>
-                            <div className="text-sm text-slate-700 md:col-span-2 line-clamp-2">{post.text}</div>
-                          </div>
-                        )
-                      })}
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            )}
 
             {/* Template cadence */}
             <h3 className="font-bold text-slate-700 mb-3 text-sm uppercase tracking-wider">Weekly Content Cadence Template</h3>

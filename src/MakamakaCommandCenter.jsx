@@ -51,12 +51,12 @@ const connectionStatus = [
 ];
 
 const liveKpis = [
-  { label: "Revenue Today", value: "$428", change: "+12%", icon: DollarSign, border: "border-t-teal-500" },
-  { label: "Orders", value: "18", change: "+4", icon: ShoppingCart, border: "border-t-teal-400" },
-  { label: "Email Click Rate", value: "4.8%", change: "+0.6%", icon: Mail, border: "border-t-blue-400" },
-  { label: "SMS Click Rate", value: "18.2%", change: "+2.1%", icon: MessageSquare, border: "border-t-amber-400" },
-  { label: "Cart Recovery", value: "11.4%", change: "+1.3%", icon: MousePointerClick, border: "border-t-orange-400" },
-  { label: "Retail QR Leads", value: "37", change: "+9", icon: QrCode, border: "border-t-green-400" },
+  { label: "Revenue Today", value: "$428", change: "+12%", icon: DollarSign, borderColor: "#14b8a6" },
+  { label: "Orders", value: "18", change: "+4", icon: ShoppingCart, borderColor: "#2dd4bf" },
+  { label: "Email Click Rate", value: "4.8%", change: "+0.6%", icon: Mail, borderColor: "#60a5fa" },
+  { label: "SMS Click Rate", value: "18.2%", change: "+2.1%", icon: MessageSquare, borderColor: "#fbbf24" },
+  { label: "Cart Recovery", value: "11.4%", change: "+1.3%", icon: MousePointerClick, borderColor: "#fb923c" },
+  { label: "Retail QR Leads", value: "37", change: "+9", icon: QrCode, borderColor: "#4ade80" },
 ];
 
 const revenueData = [
@@ -304,8 +304,8 @@ export default function MakamakaCommandCenter() {
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-6 gap-4 mb-8">
-          {displayKpis.map(({ label, value, change, icon: Icon, border }) => (
-            <Card key={label} className={`rounded-2xl shadow-sm border-t-4 ${border}`}>
+          {displayKpis.map(({ label, value, change, icon: Icon, borderColor }) => (
+            <Card key={label} className="rounded-2xl shadow-sm" style={{ borderTop: `4px solid ${borderColor}` }}>
               <CardContent className="p-5">
                 <div className="flex items-center justify-between"><Icon className="h-5 w-5 text-teal-600" /><span className="text-xs px-2 py-1 rounded-full bg-green-50 text-green-700">{change}</span></div>
                 <div className={`text-2xl font-black mt-3 ${loading ? 'opacity-40' : ''}`}>{value}</div>
@@ -399,7 +399,7 @@ export default function MakamakaCommandCenter() {
               <CardContent className="p-0">
                 <div className="divide-y">
                   {weeklyCalendar.map(([day, channel, purpose, copy, status], i) => (
-                    <div key={day} className={`grid grid-cols-1 md:grid-cols-5 gap-2 p-4 items-center transition-colors hover:bg-teal-100 ${i % 2 === 0 ? 'bg-teal-50' : 'bg-white'}`}>
+                    <div key={day} className="grid grid-cols-1 md:grid-cols-5 gap-2 p-4 items-center transition-colors" style={{ backgroundColor: i % 2 === 0 ? '#f0fdfa' : '#ffffff' }}>
                       <div className="font-bold text-slate-800">{day}</div>
                       <div className="text-sm font-medium text-teal-700">{channel}</div>
                       <div className="text-sm text-slate-600">{purpose}</div>
@@ -429,7 +429,7 @@ export default function MakamakaCommandCenter() {
           <TabsContent value="kpi" className="mt-6">
             <SectionTitle icon={BarChart3} title="Growth Dashboard KPIs" subtitle="Review every Monday morning before creating new campaigns." />
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {kpis.map(([metric, target]) => <Card key={metric} className="rounded-2xl shadow-sm bg-teal-50 border-t-4 border-t-teal-400"><CardContent className="p-5"><div className="text-sm text-slate-600">{metric}</div><div className="text-2xl font-black mt-1 text-teal-700">{target}</div></CardContent></Card>)}
+              {kpis.map(([metric, target]) => <Card key={metric} className="rounded-2xl shadow-sm" style={{ backgroundColor: '#f0fdfa', borderTop: '4px solid #2dd4bf' }}><CardContent className="p-5"><div className="text-sm text-slate-600">{metric}</div><div className="text-2xl font-black mt-1" style={{ color: '#0f766e' }}>{target}</div></CardContent></Card>)}
             </div>
           </TabsContent>
         </Tabs>

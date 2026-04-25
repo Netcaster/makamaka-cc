@@ -1,0 +1,20 @@
+[
+  {
+    "id": "test1",
+    "text": "Aloha from Makamaka! 🌺 Weekend vibes — stock up on island flavor.",
+    "due_at": 1745600000,
+    "service": "instagram",
+    "profile": "@makamaka_hi",
+    "status": "scheduled",
+    "receivedAt": "2026-04-25T04:09:27.515Z"
+  },
+  {
+    "id": "test2",
+    "text": "Why Makamaka belongs in your weekly routine. Pure island taste, no compromise.",
+    "due_at": 1745700000,
+    "service": "facebook",
+    "profile": "Makamaka Hawaii",
+    "status": "scheduled",
+    "receivedAt": "2026-04-25T04:09:27.517Z"
+  }
+]

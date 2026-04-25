@@ -1,0 +1,6 @@
+name = "makamaka-cc"
+pages_build_output_dir = "dist"
+
+[[kv_namespaces]]
+binding = "BUFFER_POSTS"
+id = "d68cb1fc33fb4df095680e83df9a7db2"
